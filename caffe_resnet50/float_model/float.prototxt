@@ -15,7 +15,7 @@ layer {
     mean_value: 123
   }
   image_data_param {
-    source: "/SSD/git-tutorial/GPU-DPU-cross-check/images/image500/calib.txt"
+    source: "/SSD/git-tutorial/GPU-DPU-cross-check/images/image500/caffe_calib.txt"
     root_folder: "/SSD/git-tutorial/GPU-DPU-cross-check/images/image500/"
     batch_size: 20
     shuffle: true
@@ -37,7 +37,7 @@ layer {
     mean_value: 123
   }
   image_data_param {
-    source: "/SSD/git-tutorial/GPU-DPU-cross-check/images/image224/dump.txt"
+    source: "/SSD/git-tutorial/GPU-DPU-cross-check/images/image224/caffe_dump.txt"
     root_folder: "/SSD/git-tutorial/GPU-DPU-cross-check/images/image224/"
     batch_size: 1
     shuffle: false 
