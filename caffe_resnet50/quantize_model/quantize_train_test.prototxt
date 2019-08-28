@@ -1,4 +1,3 @@
-name: "ResNet-50"
 layer {
   name: "data"
   type: "ImageData"
@@ -15,10 +14,10 @@ layer {
     mean_value: 123
   }
   image_data_param {
-    source: "../../../common/image500/calib.txt"
-    root_folder: "../../../common/image500/"
+    source: "/SSD/git-tutorial/GPU-DPU-cross-check/images/image500/calib.txt"
     batch_size: 20
     shuffle: true
+    root_folder: "/SSD/git-tutorial/GPU-DPU-cross-check/images/image500/"
   }
 }
 layer {
@@ -37,27 +36,43 @@ layer {
     mean_value: 123
   }
   image_data_param {
-    source: "../../../common/image500/calib.txt"
-    root_folder: "../../../common/image500/"
-    batch_size: 20
-    shuffle: false 
+    source: "/SSD/git-tutorial/GPU-DPU-cross-check/images/image224/dump.txt"
+    batch_size: 1
+    shuffle: false
+    root_folder: "/SSD/git-tutorial/GPU-DPU-cross-check/images/image224/"
   }
 }
-#input: "data"
-#input_shape {
-#  dim: 1
-#  dim: 3 
-#  dim: 224
-#  dim: 224
-#}
-
+layer {
+  name: "data_fixed"
+  type: "FixedNeuron"
+  bottom: "data"
+  top: "data"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: OVER_FLOW
+    bit_width: 8
+    follow_data_layer: true
+  }
+}
 layer {
   name: "conv1"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "data"
   top: "conv1"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 64
+    bias_term: true
     pad: 3
     kernel_size: 7
     stride: 2
@@ -69,37 +84,9 @@ layer {
       value: 0.2
     }
   }
-}
-layer {
-  name: "bn_conv1"
-  type: "BatchNorm"
-  bottom: "conv1"
-  top: "conv1"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -122,13 +109,35 @@ layer {
   }
 }
 layer {
+  name: "pool1_fixed"
+  type: "FixedNeuron"
+  bottom: "pool1"
+  top: "pool1"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res2a_branch1"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "pool1"
   top: "res2a_branch1"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 256
-    bias_term: false
+    bias_term: true
     pad: 0
     kernel_size: 1
     stride: 1
@@ -140,47 +149,41 @@ layer {
       value: 0.2
     }
   }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
 }
 layer {
-  name: "bn2a_branch1"
-  type: "BatchNorm"
+  name: "res2a_branch1_fixed"
+  type: "FixedNeuron"
   bottom: "res2a_branch1"
   top: "res2a_branch1"
   param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
     lr_mult: 0
     decay_mult: 0
   }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
   name: "res2a_branch2a"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "pool1"
   top: "res2a_branch2a"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 64
-    bias_term: false
+    bias_term: true
     pad: 0
     kernel_size: 1
     stride: 1
@@ -192,37 +195,9 @@ layer {
       value: 0.2
     }
   }
-}
-layer {
-  name: "bn2a_branch2a"
-  type: "BatchNorm"
-  bottom: "res2a_branch2a"
-  top: "res2a_branch2a"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -234,13 +209,35 @@ layer {
   }
 }
 layer {
+  name: "res2a_branch2a_fixed"
+  type: "FixedNeuron"
+  bottom: "res2a_branch2a"
+  top: "res2a_branch2a"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res2a_branch2b"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res2a_branch2a"
   top: "res2a_branch2b"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 64
-    bias_term: false
+    bias_term: true
     pad: 1
     kernel_size: 3
     stride: 1
@@ -252,37 +249,9 @@ layer {
       value: 0.2
     }
   }
-}
-layer {
-  name: "bn2a_branch2b"
-  type: "BatchNorm"
-  bottom: "res2a_branch2b"
-  top: "res2a_branch2b"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -294,13 +263,35 @@ layer {
   }
 }
 layer {
+  name: "res2a_branch2b_fixed"
+  type: "FixedNeuron"
+  bottom: "res2a_branch2b"
+  top: "res2a_branch2b"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res2a_branch2c"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res2a_branch2b"
   top: "res2a_branch2c"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 256
-    bias_term: false
+    bias_term: true
     pad: 0
     kernel_size: 1
     stride: 1
@@ -312,37 +303,23 @@ layer {
       value: 0.2
     }
   }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
 }
 layer {
-  name: "bn2a_branch2c"
-  type: "BatchNorm"
+  name: "res2a_branch2c_fixed"
+  type: "FixedNeuron"
   bottom: "res2a_branch2c"
   top: "res2a_branch2c"
   param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
     lr_mult: 0
     decay_mult: 0
   }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -363,13 +340,35 @@ layer {
   }
 }
 layer {
+  name: "res2a_fixed"
+  type: "FixedNeuron"
+  bottom: "res2a"
+  top: "res2a"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res2b_branch2a"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res2a"
   top: "res2b_branch2a"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 64
-    bias_term: false
+    bias_term: true
     pad: 0
     kernel_size: 1
     stride: 1
@@ -381,37 +380,9 @@ layer {
       value: 0.2
     }
   }
-}
-layer {
-  name: "bn2b_branch2a"
-  type: "BatchNorm"
-  bottom: "res2b_branch2a"
-  top: "res2b_branch2a"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -423,13 +394,35 @@ layer {
   }
 }
 layer {
+  name: "res2b_branch2a_fixed"
+  type: "FixedNeuron"
+  bottom: "res2b_branch2a"
+  top: "res2b_branch2a"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res2b_branch2b"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res2b_branch2a"
   top: "res2b_branch2b"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 64
-    bias_term: false
+    bias_term: true
     pad: 1
     kernel_size: 3
     stride: 1
@@ -441,37 +434,9 @@ layer {
       value: 0.2
     }
   }
-}
-layer {
-  name: "bn2b_branch2b"
-  type: "BatchNorm"
-  bottom: "res2b_branch2b"
-  top: "res2b_branch2b"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -483,13 +448,35 @@ layer {
   }
 }
 layer {
+  name: "res2b_branch2b_fixed"
+  type: "FixedNeuron"
+  bottom: "res2b_branch2b"
+  top: "res2b_branch2b"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res2b_branch2c"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res2b_branch2b"
   top: "res2b_branch2c"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 256
-    bias_term: false
+    bias_term: true
     pad: 0
     kernel_size: 1
     stride: 1
@@ -501,37 +488,23 @@ layer {
       value: 0.2
     }
   }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
 }
 layer {
-  name: "bn2b_branch2c"
-  type: "BatchNorm"
+  name: "res2b_branch2c_fixed"
+  type: "FixedNeuron"
   bottom: "res2b_branch2c"
   top: "res2b_branch2c"
   param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
     lr_mult: 0
     decay_mult: 0
   }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -552,13 +525,35 @@ layer {
   }
 }
 layer {
+  name: "res2b_fixed"
+  type: "FixedNeuron"
+  bottom: "res2b"
+  top: "res2b"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res2c_branch2a"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res2b"
   top: "res2c_branch2a"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 64
-    bias_term: false
+    bias_term: true
     pad: 0
     kernel_size: 1
     stride: 1
@@ -570,37 +565,9 @@ layer {
       value: 0.2
     }
   }
-}
-layer {
-  name: "bn2c_branch2a"
-  type: "BatchNorm"
-  bottom: "res2c_branch2a"
-  top: "res2c_branch2a"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -612,13 +579,35 @@ layer {
   }
 }
 layer {
+  name: "res2c_branch2a_fixed"
+  type: "FixedNeuron"
+  bottom: "res2c_branch2a"
+  top: "res2c_branch2a"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res2c_branch2b"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res2c_branch2a"
   top: "res2c_branch2b"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 64
-    bias_term: false
+    bias_term: true
     pad: 1
     kernel_size: 3
     stride: 1
@@ -630,37 +619,9 @@ layer {
       value: 0.2
     }
   }
-}
-layer {
-  name: "bn2c_branch2b"
-  type: "BatchNorm"
-  bottom: "res2c_branch2b"
-  top: "res2c_branch2b"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -672,13 +633,35 @@ layer {
   }
 }
 layer {
+  name: "res2c_branch2b_fixed"
+  type: "FixedNeuron"
+  bottom: "res2c_branch2b"
+  top: "res2c_branch2b"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res2c_branch2c"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res2c_branch2b"
   top: "res2c_branch2c"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 256
-    bias_term: false
+    bias_term: true
     pad: 0
     kernel_size: 1
     stride: 1
@@ -690,37 +673,23 @@ layer {
       value: 0.2
     }
   }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
 }
 layer {
-  name: "bn2c_branch2c"
-  type: "BatchNorm"
+  name: "res2c_branch2c_fixed"
+  type: "FixedNeuron"
   bottom: "res2c_branch2c"
   top: "res2c_branch2c"
   param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
     lr_mult: 0
     decay_mult: 0
   }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -741,13 +710,35 @@ layer {
   }
 }
 layer {
+  name: "res2c_fixed"
+  type: "FixedNeuron"
+  bottom: "res2c"
+  top: "res2c"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res3a_branch1"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res2c"
   top: "res3a_branch1"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 512
-    bias_term: false
+    bias_term: true
     pad: 0
     kernel_size: 1
     stride: 2
@@ -759,47 +750,41 @@ layer {
       value: 0.2
     }
   }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
 }
 layer {
-  name: "bn3a_branch1"
-  type: "BatchNorm"
+  name: "res3a_branch1_fixed"
+  type: "FixedNeuron"
   bottom: "res3a_branch1"
   top: "res3a_branch1"
   param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
     lr_mult: 0
     decay_mult: 0
   }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
   name: "res3a_branch2a"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res2c"
   top: "res3a_branch2a"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 128
-    bias_term: false
+    bias_term: true
     pad: 0
     kernel_size: 1
     stride: 2
@@ -811,37 +796,9 @@ layer {
       value: 0.2
     }
   }
-}
-layer {
-  name: "bn3a_branch2a"
-  type: "BatchNorm"
-  bottom: "res3a_branch2a"
-  top: "res3a_branch2a"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -853,13 +810,35 @@ layer {
   }
 }
 layer {
+  name: "res3a_branch2a_fixed"
+  type: "FixedNeuron"
+  bottom: "res3a_branch2a"
+  top: "res3a_branch2a"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res3a_branch2b"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res3a_branch2a"
   top: "res3a_branch2b"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 128
-    bias_term: false
+    bias_term: true
     pad: 1
     kernel_size: 3
     stride: 1
@@ -871,37 +850,9 @@ layer {
       value: 0.2
     }
   }
-}
-layer {
-  name: "bn3a_branch2b"
-  type: "BatchNorm"
-  bottom: "res3a_branch2b"
-  top: "res3a_branch2b"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -913,13 +864,35 @@ layer {
   }
 }
 layer {
+  name: "res3a_branch2b_fixed"
+  type: "FixedNeuron"
+  bottom: "res3a_branch2b"
+  top: "res3a_branch2b"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res3a_branch2c"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res3a_branch2b"
   top: "res3a_branch2c"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 512
-    bias_term: false
+    bias_term: true
     pad: 0
     kernel_size: 1
     stride: 1
@@ -931,37 +904,23 @@ layer {
       value: 0.2
     }
   }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
 }
 layer {
-  name: "bn3a_branch2c"
-  type: "BatchNorm"
+  name: "res3a_branch2c_fixed"
+  type: "FixedNeuron"
   bottom: "res3a_branch2c"
   top: "res3a_branch2c"
   param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
     lr_mult: 0
     decay_mult: 0
   }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -982,13 +941,35 @@ layer {
   }
 }
 layer {
+  name: "res3a_fixed"
+  type: "FixedNeuron"
+  bottom: "res3a"
+  top: "res3a"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res3b_branch2a"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res3a"
   top: "res3b_branch2a"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 128
-    bias_term: false
+    bias_term: true
     pad: 0
     kernel_size: 1
     stride: 1
@@ -1000,37 +981,9 @@ layer {
       value: 0.2
     }
   }
-}
-layer {
-  name: "bn3b_branch2a"
-  type: "BatchNorm"
-  bottom: "res3b_branch2a"
-  top: "res3b_branch2a"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -1042,13 +995,35 @@ layer {
   }
 }
 layer {
+  name: "res3b_branch2a_fixed"
+  type: "FixedNeuron"
+  bottom: "res3b_branch2a"
+  top: "res3b_branch2a"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res3b_branch2b"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res3b_branch2a"
   top: "res3b_branch2b"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 128
-    bias_term: false
+    bias_term: true
     pad: 1
     kernel_size: 3
     stride: 1
@@ -1060,37 +1035,9 @@ layer {
       value: 0.2
     }
   }
-}
-layer {
-  name: "bn3b_branch2b"
-  type: "BatchNorm"
-  bottom: "res3b_branch2b"
-  top: "res3b_branch2b"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -1102,13 +1049,35 @@ layer {
   }
 }
 layer {
+  name: "res3b_branch2b_fixed"
+  type: "FixedNeuron"
+  bottom: "res3b_branch2b"
+  top: "res3b_branch2b"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res3b_branch2c"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res3b_branch2b"
   top: "res3b_branch2c"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 512
-    bias_term: false
+    bias_term: true
     pad: 0
     kernel_size: 1
     stride: 1
@@ -1120,37 +1089,23 @@ layer {
       value: 0.2
     }
   }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
 }
 layer {
-  name: "bn3b_branch2c"
-  type: "BatchNorm"
+  name: "res3b_branch2c_fixed"
+  type: "FixedNeuron"
   bottom: "res3b_branch2c"
   top: "res3b_branch2c"
   param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
     lr_mult: 0
     decay_mult: 0
   }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -1171,13 +1126,35 @@ layer {
   }
 }
 layer {
+  name: "res3b_fixed"
+  type: "FixedNeuron"
+  bottom: "res3b"
+  top: "res3b"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res3c_branch2a"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res3b"
   top: "res3c_branch2a"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 128
-    bias_term: false
+    bias_term: true
     pad: 0
     kernel_size: 1
     stride: 1
@@ -1189,37 +1166,9 @@ layer {
       value: 0.2
     }
   }
-}
-layer {
-  name: "bn3c_branch2a"
-  type: "BatchNorm"
-  bottom: "res3c_branch2a"
-  top: "res3c_branch2a"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -1231,13 +1180,35 @@ layer {
   }
 }
 layer {
+  name: "res3c_branch2a_fixed"
+  type: "FixedNeuron"
+  bottom: "res3c_branch2a"
+  top: "res3c_branch2a"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res3c_branch2b"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res3c_branch2a"
   top: "res3c_branch2b"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 128
-    bias_term: false
+    bias_term: true
     pad: 1
     kernel_size: 3
     stride: 1
@@ -1249,37 +1220,9 @@ layer {
       value: 0.2
     }
   }
-}
-layer {
-  name: "bn3c_branch2b"
-  type: "BatchNorm"
-  bottom: "res3c_branch2b"
-  top: "res3c_branch2b"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -1291,13 +1234,35 @@ layer {
   }
 }
 layer {
+  name: "res3c_branch2b_fixed"
+  type: "FixedNeuron"
+  bottom: "res3c_branch2b"
+  top: "res3c_branch2b"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res3c_branch2c"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res3c_branch2b"
   top: "res3c_branch2c"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 512
-    bias_term: false
+    bias_term: true
     pad: 0
     kernel_size: 1
     stride: 1
@@ -1309,37 +1274,23 @@ layer {
       value: 0.2
     }
   }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
 }
 layer {
-  name: "bn3c_branch2c"
-  type: "BatchNorm"
+  name: "res3c_branch2c_fixed"
+  type: "FixedNeuron"
   bottom: "res3c_branch2c"
   top: "res3c_branch2c"
   param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
     lr_mult: 0
     decay_mult: 0
   }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -1360,13 +1311,35 @@ layer {
   }
 }
 layer {
+  name: "res3c_fixed"
+  type: "FixedNeuron"
+  bottom: "res3c"
+  top: "res3c"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res3d_branch2a"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res3c"
   top: "res3d_branch2a"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 128
-    bias_term: false
+    bias_term: true
     pad: 0
     kernel_size: 1
     stride: 1
@@ -1378,37 +1351,9 @@ layer {
       value: 0.2
     }
   }
-}
-layer {
-  name: "bn3d_branch2a"
-  type: "BatchNorm"
-  bottom: "res3d_branch2a"
-  top: "res3d_branch2a"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -1420,13 +1365,35 @@ layer {
   }
 }
 layer {
+  name: "res3d_branch2a_fixed"
+  type: "FixedNeuron"
+  bottom: "res3d_branch2a"
+  top: "res3d_branch2a"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res3d_branch2b"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res3d_branch2a"
   top: "res3d_branch2b"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 128
-    bias_term: false
+    bias_term: true
     pad: 1
     kernel_size: 3
     stride: 1
@@ -1438,37 +1405,9 @@ layer {
       value: 0.2
     }
   }
-}
-layer {
-  name: "bn3d_branch2b"
-  type: "BatchNorm"
-  bottom: "res3d_branch2b"
-  top: "res3d_branch2b"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -1480,13 +1419,35 @@ layer {
   }
 }
 layer {
+  name: "res3d_branch2b_fixed"
+  type: "FixedNeuron"
+  bottom: "res3d_branch2b"
+  top: "res3d_branch2b"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res3d_branch2c"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res3d_branch2b"
   top: "res3d_branch2c"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 512
-    bias_term: false
+    bias_term: true
     pad: 0
     kernel_size: 1
     stride: 1
@@ -1498,37 +1459,23 @@ layer {
       value: 0.2
     }
   }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
 }
 layer {
-  name: "bn3d_branch2c"
-  type: "BatchNorm"
+  name: "res3d_branch2c_fixed"
+  type: "FixedNeuron"
   bottom: "res3d_branch2c"
   top: "res3d_branch2c"
   param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
     lr_mult: 0
     decay_mult: 0
   }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -1549,13 +1496,35 @@ layer {
   }
 }
 layer {
+  name: "res3d_fixed"
+  type: "FixedNeuron"
+  bottom: "res3d"
+  top: "res3d"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res4a_branch1"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res3d"
   top: "res4a_branch1"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 1024
-    bias_term: false
+    bias_term: true
     pad: 0
     kernel_size: 1
     stride: 2
@@ -1567,47 +1536,41 @@ layer {
       value: 0.2
     }
   }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
 }
 layer {
-  name: "bn4a_branch1"
-  type: "BatchNorm"
+  name: "res4a_branch1_fixed"
+  type: "FixedNeuron"
   bottom: "res4a_branch1"
   top: "res4a_branch1"
   param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
     lr_mult: 0
     decay_mult: 0
   }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
   name: "res4a_branch2a"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res3d"
   top: "res4a_branch2a"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 256
-    bias_term: false
+    bias_term: true
     pad: 0
     kernel_size: 1
     stride: 2
@@ -1619,37 +1582,9 @@ layer {
       value: 0.2
     }
   }
-}
-layer {
-  name: "bn4a_branch2a"
-  type: "BatchNorm"
-  bottom: "res4a_branch2a"
-  top: "res4a_branch2a"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -1661,13 +1596,35 @@ layer {
   }
 }
 layer {
+  name: "res4a_branch2a_fixed"
+  type: "FixedNeuron"
+  bottom: "res4a_branch2a"
+  top: "res4a_branch2a"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res4a_branch2b"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res4a_branch2a"
   top: "res4a_branch2b"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 256
-    bias_term: false
+    bias_term: true
     pad: 1
     kernel_size: 3
     stride: 1
@@ -1679,37 +1636,9 @@ layer {
       value: 0.2
     }
   }
-}
-layer {
-  name: "bn4a_branch2b"
-  type: "BatchNorm"
-  bottom: "res4a_branch2b"
-  top: "res4a_branch2b"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -1721,13 +1650,35 @@ layer {
   }
 }
 layer {
+  name: "res4a_branch2b_fixed"
+  type: "FixedNeuron"
+  bottom: "res4a_branch2b"
+  top: "res4a_branch2b"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res4a_branch2c"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res4a_branch2b"
   top: "res4a_branch2c"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 1024
-    bias_term: false
+    bias_term: true
     pad: 0
     kernel_size: 1
     stride: 1
@@ -1739,37 +1690,23 @@ layer {
       value: 0.2
     }
   }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
 }
 layer {
-  name: "bn4a_branch2c"
-  type: "BatchNorm"
+  name: "res4a_branch2c_fixed"
+  type: "FixedNeuron"
   bottom: "res4a_branch2c"
   top: "res4a_branch2c"
   param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
     lr_mult: 0
     decay_mult: 0
   }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -1790,13 +1727,35 @@ layer {
   }
 }
 layer {
+  name: "res4a_fixed"
+  type: "FixedNeuron"
+  bottom: "res4a"
+  top: "res4a"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res4b_branch2a"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res4a"
   top: "res4b_branch2a"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 256
-    bias_term: false
+    bias_term: true
     pad: 0
     kernel_size: 1
     stride: 1
@@ -1808,37 +1767,9 @@ layer {
       value: 0.2
     }
   }
-}
-layer {
-  name: "bn4b_branch2a"
-  type: "BatchNorm"
-  bottom: "res4b_branch2a"
-  top: "res4b_branch2a"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -1850,13 +1781,35 @@ layer {
   }
 }
 layer {
+  name: "res4b_branch2a_fixed"
+  type: "FixedNeuron"
+  bottom: "res4b_branch2a"
+  top: "res4b_branch2a"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res4b_branch2b"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res4b_branch2a"
   top: "res4b_branch2b"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 256
-    bias_term: false
+    bias_term: true
     pad: 1
     kernel_size: 3
     stride: 1
@@ -1868,37 +1821,9 @@ layer {
       value: 0.2
     }
   }
-}
-layer {
-  name: "bn4b_branch2b"
-  type: "BatchNorm"
-  bottom: "res4b_branch2b"
-  top: "res4b_branch2b"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -1910,13 +1835,35 @@ layer {
   }
 }
 layer {
+  name: "res4b_branch2b_fixed"
+  type: "FixedNeuron"
+  bottom: "res4b_branch2b"
+  top: "res4b_branch2b"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res4b_branch2c"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res4b_branch2b"
   top: "res4b_branch2c"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 1024
-    bias_term: false
+    bias_term: true
     pad: 0
     kernel_size: 1
     stride: 1
@@ -1928,37 +1875,23 @@ layer {
       value: 0.2
     }
   }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
 }
 layer {
-  name: "bn4b_branch2c"
-  type: "BatchNorm"
+  name: "res4b_branch2c_fixed"
+  type: "FixedNeuron"
   bottom: "res4b_branch2c"
   top: "res4b_branch2c"
   param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
     lr_mult: 0
     decay_mult: 0
   }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -1979,13 +1912,35 @@ layer {
   }
 }
 layer {
+  name: "res4b_fixed"
+  type: "FixedNeuron"
+  bottom: "res4b"
+  top: "res4b"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res4c_branch2a"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res4b"
   top: "res4c_branch2a"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 256
-    bias_term: false
+    bias_term: true
     pad: 0
     kernel_size: 1
     stride: 1
@@ -1997,37 +1952,9 @@ layer {
       value: 0.2
     }
   }
-}
-layer {
-  name: "bn4c_branch2a"
-  type: "BatchNorm"
-  bottom: "res4c_branch2a"
-  top: "res4c_branch2a"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -2039,13 +1966,35 @@ layer {
   }
 }
 layer {
+  name: "res4c_branch2a_fixed"
+  type: "FixedNeuron"
+  bottom: "res4c_branch2a"
+  top: "res4c_branch2a"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res4c_branch2b"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res4c_branch2a"
   top: "res4c_branch2b"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 256
-    bias_term: false
+    bias_term: true
     pad: 1
     kernel_size: 3
     stride: 1
@@ -2057,37 +2006,9 @@ layer {
       value: 0.2
     }
   }
-}
-layer {
-  name: "bn4c_branch2b"
-  type: "BatchNorm"
-  bottom: "res4c_branch2b"
-  top: "res4c_branch2b"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -2099,13 +2020,35 @@ layer {
   }
 }
 layer {
+  name: "res4c_branch2b_fixed"
+  type: "FixedNeuron"
+  bottom: "res4c_branch2b"
+  top: "res4c_branch2b"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res4c_branch2c"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res4c_branch2b"
   top: "res4c_branch2c"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 1024
-    bias_term: false
+    bias_term: true
     pad: 0
     kernel_size: 1
     stride: 1
@@ -2117,37 +2060,23 @@ layer {
       value: 0.2
     }
   }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
 }
 layer {
-  name: "bn4c_branch2c"
-  type: "BatchNorm"
+  name: "res4c_branch2c_fixed"
+  type: "FixedNeuron"
   bottom: "res4c_branch2c"
   top: "res4c_branch2c"
   param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
     lr_mult: 0
     decay_mult: 0
   }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -2168,13 +2097,35 @@ layer {
   }
 }
 layer {
+  name: "res4c_fixed"
+  type: "FixedNeuron"
+  bottom: "res4c"
+  top: "res4c"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res4d_branch2a"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res4c"
   top: "res4d_branch2a"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 256
-    bias_term: false
+    bias_term: true
     pad: 0
     kernel_size: 1
     stride: 1
@@ -2186,37 +2137,9 @@ layer {
       value: 0.2
     }
   }
-}
-layer {
-  name: "bn4d_branch2a"
-  type: "BatchNorm"
-  bottom: "res4d_branch2a"
-  top: "res4d_branch2a"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -2228,13 +2151,35 @@ layer {
   }
 }
 layer {
+  name: "res4d_branch2a_fixed"
+  type: "FixedNeuron"
+  bottom: "res4d_branch2a"
+  top: "res4d_branch2a"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res4d_branch2b"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res4d_branch2a"
   top: "res4d_branch2b"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 256
-    bias_term: false
+    bias_term: true
     pad: 1
     kernel_size: 3
     stride: 1
@@ -2246,37 +2191,9 @@ layer {
       value: 0.2
     }
   }
-}
-layer {
-  name: "bn4d_branch2b"
-  type: "BatchNorm"
-  bottom: "res4d_branch2b"
-  top: "res4d_branch2b"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -2288,13 +2205,35 @@ layer {
   }
 }
 layer {
+  name: "res4d_branch2b_fixed"
+  type: "FixedNeuron"
+  bottom: "res4d_branch2b"
+  top: "res4d_branch2b"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res4d_branch2c"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res4d_branch2b"
   top: "res4d_branch2c"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 1024
-    bias_term: false
+    bias_term: true
     pad: 0
     kernel_size: 1
     stride: 1
@@ -2306,37 +2245,23 @@ layer {
       value: 0.2
     }
   }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
 }
 layer {
-  name: "bn4d_branch2c"
-  type: "BatchNorm"
+  name: "res4d_branch2c_fixed"
+  type: "FixedNeuron"
   bottom: "res4d_branch2c"
   top: "res4d_branch2c"
   param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
     lr_mult: 0
     decay_mult: 0
   }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -2357,13 +2282,35 @@ layer {
   }
 }
 layer {
+  name: "res4d_fixed"
+  type: "FixedNeuron"
+  bottom: "res4d"
+  top: "res4d"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res4e_branch2a"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res4d"
   top: "res4e_branch2a"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 256
-    bias_term: false
+    bias_term: true
     pad: 0
     kernel_size: 1
     stride: 1
@@ -2375,37 +2322,9 @@ layer {
       value: 0.2
     }
   }
-}
-layer {
-  name: "bn4e_branch2a"
-  type: "BatchNorm"
-  bottom: "res4e_branch2a"
-  top: "res4e_branch2a"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -2417,13 +2336,35 @@ layer {
   }
 }
 layer {
+  name: "res4e_branch2a_fixed"
+  type: "FixedNeuron"
+  bottom: "res4e_branch2a"
+  top: "res4e_branch2a"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res4e_branch2b"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res4e_branch2a"
   top: "res4e_branch2b"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 256
-    bias_term: false
+    bias_term: true
     pad: 1
     kernel_size: 3
     stride: 1
@@ -2435,37 +2376,9 @@ layer {
       value: 0.2
     }
   }
-}
-layer {
-  name: "bn4e_branch2b"
-  type: "BatchNorm"
-  bottom: "res4e_branch2b"
-  top: "res4e_branch2b"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -2477,13 +2390,35 @@ layer {
   }
 }
 layer {
+  name: "res4e_branch2b_fixed"
+  type: "FixedNeuron"
+  bottom: "res4e_branch2b"
+  top: "res4e_branch2b"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res4e_branch2c"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res4e_branch2b"
   top: "res4e_branch2c"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 1024
-    bias_term: false
+    bias_term: true
     pad: 0
     kernel_size: 1
     stride: 1
@@ -2495,37 +2430,23 @@ layer {
       value: 0.2
     }
   }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
 }
 layer {
-  name: "bn4e_branch2c"
-  type: "BatchNorm"
+  name: "res4e_branch2c_fixed"
+  type: "FixedNeuron"
   bottom: "res4e_branch2c"
   top: "res4e_branch2c"
   param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
     lr_mult: 0
     decay_mult: 0
   }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -2546,13 +2467,35 @@ layer {
   }
 }
 layer {
+  name: "res4e_fixed"
+  type: "FixedNeuron"
+  bottom: "res4e"
+  top: "res4e"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res4f_branch2a"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res4e"
   top: "res4f_branch2a"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 256
-    bias_term: false
+    bias_term: true
     pad: 0
     kernel_size: 1
     stride: 1
@@ -2564,37 +2507,9 @@ layer {
       value: 0.2
     }
   }
-}
-layer {
-  name: "bn4f_branch2a"
-  type: "BatchNorm"
-  bottom: "res4f_branch2a"
-  top: "res4f_branch2a"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -2606,13 +2521,35 @@ layer {
   }
 }
 layer {
+  name: "res4f_branch2a_fixed"
+  type: "FixedNeuron"
+  bottom: "res4f_branch2a"
+  top: "res4f_branch2a"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res4f_branch2b"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res4f_branch2a"
   top: "res4f_branch2b"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 256
-    bias_term: false
+    bias_term: true
     pad: 1
     kernel_size: 3
     stride: 1
@@ -2624,37 +2561,9 @@ layer {
       value: 0.2
     }
   }
-}
-layer {
-  name: "bn4f_branch2b"
-  type: "BatchNorm"
-  bottom: "res4f_branch2b"
-  top: "res4f_branch2b"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -2666,13 +2575,35 @@ layer {
   }
 }
 layer {
+  name: "res4f_branch2b_fixed"
+  type: "FixedNeuron"
+  bottom: "res4f_branch2b"
+  top: "res4f_branch2b"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res4f_branch2c"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res4f_branch2b"
   top: "res4f_branch2c"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 1024
-    bias_term: false
+    bias_term: true
     pad: 0
     kernel_size: 1
     stride: 1
@@ -2684,37 +2615,23 @@ layer {
       value: 0.2
     }
   }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
 }
 layer {
-  name: "bn4f_branch2c"
-  type: "BatchNorm"
+  name: "res4f_branch2c_fixed"
+  type: "FixedNeuron"
   bottom: "res4f_branch2c"
   top: "res4f_branch2c"
   param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
     lr_mult: 0
     decay_mult: 0
   }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -2735,13 +2652,35 @@ layer {
   }
 }
 layer {
+  name: "res4f_fixed"
+  type: "FixedNeuron"
+  bottom: "res4f"
+  top: "res4f"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res5a_branch1"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res4f"
   top: "res5a_branch1"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 2048
-    bias_term: false
+    bias_term: true
     pad: 0
     kernel_size: 1
     stride: 2
@@ -2753,47 +2692,41 @@ layer {
       value: 0.2
     }
   }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
 }
 layer {
-  name: "bn5a_branch1"
-  type: "BatchNorm"
+  name: "res5a_branch1_fixed"
+  type: "FixedNeuron"
   bottom: "res5a_branch1"
   top: "res5a_branch1"
   param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
     lr_mult: 0
     decay_mult: 0
   }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
   name: "res5a_branch2a"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res4f"
   top: "res5a_branch2a"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 512
-    bias_term: false
+    bias_term: true
     pad: 0
     kernel_size: 1
     stride: 2
@@ -2805,37 +2738,9 @@ layer {
       value: 0.2
     }
   }
-}
-layer {
-  name: "bn5a_branch2a"
-  type: "BatchNorm"
-  bottom: "res5a_branch2a"
-  top: "res5a_branch2a"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -2847,13 +2752,35 @@ layer {
   }
 }
 layer {
+  name: "res5a_branch2a_fixed"
+  type: "FixedNeuron"
+  bottom: "res5a_branch2a"
+  top: "res5a_branch2a"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res5a_branch2b"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res5a_branch2a"
   top: "res5a_branch2b"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 512
-    bias_term: false
+    bias_term: true
     pad: 1
     kernel_size: 3
     stride: 1
@@ -2865,37 +2792,9 @@ layer {
       value: 0.2
     }
   }
-}
-layer {
-  name: "bn5a_branch2b"
-  type: "BatchNorm"
-  bottom: "res5a_branch2b"
-  top: "res5a_branch2b"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -2907,13 +2806,35 @@ layer {
   }
 }
 layer {
+  name: "res5a_branch2b_fixed"
+  type: "FixedNeuron"
+  bottom: "res5a_branch2b"
+  top: "res5a_branch2b"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res5a_branch2c"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res5a_branch2b"
   top: "res5a_branch2c"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 2048
-    bias_term: false
+    bias_term: true
     pad: 0
     kernel_size: 1
     stride: 1
@@ -2925,37 +2846,23 @@ layer {
       value: 0.2
     }
   }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
 }
 layer {
-  name: "bn5a_branch2c"
-  type: "BatchNorm"
+  name: "res5a_branch2c_fixed"
+  type: "FixedNeuron"
   bottom: "res5a_branch2c"
   top: "res5a_branch2c"
   param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
     lr_mult: 0
     decay_mult: 0
   }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -2976,13 +2883,35 @@ layer {
   }
 }
 layer {
+  name: "res5a_fixed"
+  type: "FixedNeuron"
+  bottom: "res5a"
+  top: "res5a"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res5b_branch2a"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res5a"
   top: "res5b_branch2a"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 512
-    bias_term: false
+    bias_term: true
     pad: 0
     kernel_size: 1
     stride: 1
@@ -2994,37 +2923,9 @@ layer {
       value: 0.2
     }
   }
-}
-layer {
-  name: "bn5b_branch2a"
-  type: "BatchNorm"
-  bottom: "res5b_branch2a"
-  top: "res5b_branch2a"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -3036,13 +2937,35 @@ layer {
   }
 }
 layer {
+  name: "res5b_branch2a_fixed"
+  type: "FixedNeuron"
+  bottom: "res5b_branch2a"
+  top: "res5b_branch2a"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res5b_branch2b"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res5b_branch2a"
   top: "res5b_branch2b"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 512
-    bias_term: false
+    bias_term: true
     pad: 1
     kernel_size: 3
     stride: 1
@@ -3054,37 +2977,9 @@ layer {
       value: 0.2
     }
   }
-}
-layer {
-  name: "bn5b_branch2b"
-  type: "BatchNorm"
-  bottom: "res5b_branch2b"
-  top: "res5b_branch2b"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -3096,13 +2991,35 @@ layer {
   }
 }
 layer {
+  name: "res5b_branch2b_fixed"
+  type: "FixedNeuron"
+  bottom: "res5b_branch2b"
+  top: "res5b_branch2b"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res5b_branch2c"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res5b_branch2b"
   top: "res5b_branch2c"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 2048
-    bias_term: false
+    bias_term: true
     pad: 0
     kernel_size: 1
     stride: 1
@@ -3114,37 +3031,23 @@ layer {
       value: 0.2
     }
   }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
 }
 layer {
-  name: "bn5b_branch2c"
-  type: "BatchNorm"
+  name: "res5b_branch2c_fixed"
+  type: "FixedNeuron"
   bottom: "res5b_branch2c"
   top: "res5b_branch2c"
   param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
     lr_mult: 0
     decay_mult: 0
   }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -3165,13 +3068,35 @@ layer {
   }
 }
 layer {
+  name: "res5b_fixed"
+  type: "FixedNeuron"
+  bottom: "res5b"
+  top: "res5b"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res5c_branch2a"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res5b"
   top: "res5c_branch2a"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 512
-    bias_term: false
+    bias_term: true
     pad: 0
     kernel_size: 1
     stride: 1
@@ -3183,37 +3108,9 @@ layer {
       value: 0.2
     }
   }
-}
-layer {
-  name: "bn5c_branch2a"
-  type: "BatchNorm"
-  bottom: "res5c_branch2a"
-  top: "res5c_branch2a"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -3225,13 +3122,35 @@ layer {
   }
 }
 layer {
+  name: "res5c_branch2a_fixed"
+  type: "FixedNeuron"
+  bottom: "res5c_branch2a"
+  top: "res5c_branch2a"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res5c_branch2b"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res5c_branch2a"
   top: "res5c_branch2b"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 512
-    bias_term: false
+    bias_term: true
     pad: 1
     kernel_size: 3
     stride: 1
@@ -3243,37 +3162,9 @@ layer {
       value: 0.2
     }
   }
-}
-layer {
-  name: "bn5c_branch2b"
-  type: "BatchNorm"
-  bottom: "res5c_branch2b"
-  top: "res5c_branch2b"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -3285,13 +3176,35 @@ layer {
   }
 }
 layer {
+  name: "res5c_branch2b_fixed"
+  type: "FixedNeuron"
+  bottom: "res5c_branch2b"
+  top: "res5c_branch2b"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "res5c_branch2c"
-  type: "Convolution"
+  type: "ConvolutionFixed"
   bottom: "res5c_branch2b"
   top: "res5c_branch2c"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 1
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 2048
-    bias_term: false
+    bias_term: true
     pad: 0
     kernel_size: 1
     stride: 1
@@ -3303,37 +3216,23 @@ layer {
       value: 0.2
     }
   }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
 }
 layer {
-  name: "bn5c_branch2c"
-  type: "BatchNorm"
+  name: "res5c_branch2c_fixed"
+  type: "FixedNeuron"
   bottom: "res5c_branch2c"
   top: "res5c_branch2c"
   param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
     lr_mult: 0
     decay_mult: 0
   }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    scale_filler {
-      type: "constant"
-      value: 1
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
@@ -3354,6 +3253,20 @@ layer {
   }
 }
 layer {
+  name: "res5c_fixed"
+  type: "FixedNeuron"
+  bottom: "res5c"
+  top: "res5c"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "pool5"
   type: "Pooling"
   bottom: "res5c"
@@ -3365,8 +3278,22 @@ layer {
   }
 }
 layer {
+  name: "pool5_fixed"
+  type: "FixedNeuron"
+  bottom: "pool5"
+  top: "pool5"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
   name: "fc1000"
-  type: "InnerProduct"
+  type: "InnerProductFixed"
   bottom: "pool5"
   top: "fc1000"
   inner_product_param {
@@ -3378,6 +3305,24 @@ layer {
       type: "constant"
       value: 0
     }
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
+  }
+}
+layer {
+  name: "fc1000_fixed"
+  type: "FixedNeuron"
+  bottom: "fc1000"
+  top: "fc1000"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  fixed_param {
+    fixed_method: DIFF_S
+    bit_width: 8
   }
 }
 layer {
