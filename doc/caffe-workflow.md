@@ -136,7 +136,7 @@ make
 
 Enable DPU debug mode with DNNDK dexplorer (detailed information is in Chapter 11 of [UG1327](https://www.xilinx.com/support/documentation/sw_manuals/ai_inference/v1_6/ug1327-dnndk-user-guide.pdf)):
 ```
-dexploere -m debug
+dexplorer -m debug
 ```
 
 Run DPU inference with reference input data `data.txt` by below command and inference result of layers will be save in folder `dump_xxx`.
