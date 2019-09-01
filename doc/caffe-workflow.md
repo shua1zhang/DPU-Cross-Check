@@ -21,7 +21,7 @@ This tutorial requires DECENT_Q full version and assumes that it is renamed to `
 
 Resnet50 from [Xilinx Model Zoo](https://github.com/Xilinx/AI-Model-Zoo) is used in this tutorial. The float model is already placed in `GPU-DPU-cross-check/caffe_resnet50/float_model/` and complete ResNet50 package can be downloaded in [download link](https://www.xilinx.com/bin/public/openDownload?filename=resnet50_20190528.zip).
 
-## 2. Generate Quantized Inference Model
+## 2. Generate Quantized Inference Model and Reference Result
 
 ### Add ImageData layer into prototxt
 
@@ -111,8 +111,11 @@ DECENT_DEBUG=5 decent_q_full test -model quantize_model/quantize_train_test.prot
                                   -test_iter 1 \
                                   2>&1 | tee ./log/dump.log
 ```
+After running the script, folder "dump_gpu" will be generated and partial files are shown as below.
 
+![GPU Reference Result](https://github.com/shua1zhang/GPU-DPU-cross-check/blob/master/doc/pic/GPU_dump.PNG)
 
+## 3. Generate DPU Inference Result 
 ### Generate DPU elf file 
 Run script "2_compile.sh" to generate DPU elf file. Please modify `dcf` parameter according to your board. 
 ```
@@ -127,6 +130,8 @@ dnnc-3.1 --parser=caffe \
          --save_kernel
 ```
 
+With internal function of DNNC, the relationship between DPU super layers and actual network layers could be generated as [Caffe ResNet50 Super Layer](https://github.com/shua1zhang/GPU-DPU-cross-check/blob/master/caffe_resnet50/kernel_graph.jpg).
+
 ### Generate DPU inference result
 
 Transfer folder `/board_caffe` onto board system and generate executable `caffe-resnet50` by command: 
@@ -139,7 +144,22 @@ Enable DPU debug mode with DNNDK dexplorer (detailed information is in Chapter 1
 dexplorer -m debug
 ```
 
-Run DPU inference with reference input data `data.txt` by below command and inference result of layers will be save in folder `dump_xxx`.
+Run DPU inference with reference input data `data.txt` by below command and inference result of layers will be save in folder `dump_xxx`, the partial files are shown below. 
 ```
 caffe-resnet50 data.txt
 ```
+![DPU Inference Result](https://github.com/shua1zhang/GPU-DPU-cross-check/blob/master/doc/pic/DPU_dump.PNG)
+
+## 4. Cross Check Inference Result
+# Understand layer correspondence between refenecne result and DPU inference result
+When DNNC generates elf file, it will conduct several optimization strategies on certain layer conbinations and form super layers so as to get better performance. In order to cross check inference result correctness, [super layer graph](https://github.com/shua1zhang/GPU-DPU-cross-check/blob/master/caffe_resnet50/kernel_graph.jpg) will be used to find correct files to cross check. 
+
+![Beginning of Caffe ResNet50 Super Layer](https://github.com/shua1zhang/GPU-DPU-cross-check/blob/master/doc/pic/Super_layer.PNG).
+
+For example, first several layers of caffe resnet are shown as above. The names of DPU super layers are shown on the top of every blocks (e.g, data, conv1, res2a_branch2a and res2a_branch1) while names of network layers are shown in every blobs (e.g, data, conv1, conv1_relu, pool1). 
+
+Network layer   | DPU super layer
+---------------:|:-------------
+data.bin        | resnet50_0_conv1_in0.bin
+pool1.bin       | resnet50_0_conv1_out0.bin
+
