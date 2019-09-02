@@ -119,7 +119,7 @@ After running the script, folder "dump_gpu" will be generated and partial files 
 
 ## 3. Generate DPU Inference Result 
 ### Generate DPU elf file 
-Run script "2_compile.sh" to generate DPU elf file. Please modify `dcf` parameter according to your board. 
+Run script `2_compile.sh` to generate DPU elf file. Please modify `dcf` parameter according to your board. 
 ```
 dnnc-3.1 --parser=caffe \
          --dcf=../dcf/ZCU102.dcf \
