@@ -7,9 +7,9 @@ Please setup the environment according to Chapter 1 of [UG1327](https://www.xili
 
 ### Board environment
 
-For avaliable Xilinx evalution boards, please make sure board image and DNNDK are correctly installed and configured.
+For avaliable Xilinx evalution boards, please make sure board image and DNNDK are correctly installed and configured according to Chapter 1 of [UG1327](https://www.xilinx.com/support/documentation/sw_manuals/ai_inference/v1_6/ug1327-dnndk-user-guide.pdf).
 
-For custom FPGA platform, please make sure DPU and DNDNK are correctly implemented based on DPU TRD. 
+For custom FPGA platform, please make sure DPU and DNDNK are correctly implemented based on [DPU TRD](https://www.xilinx.com/member/forms/download/design-license-xef.html?filename=zcu102-dpu-trd-2019-1-190809.zip). 
 
 Related files can be downloaded in [Xilinx AI Developer Hub](https://www.xilinx.com/products/design-tools/ai-inference/ai-developer-hub.html#edge).
 
@@ -19,7 +19,7 @@ This tutorial requires DECENT_Q full version and assumes that it is renamed to `
 
 ### Model
 
-Resnet50 from [Xilinx Model Zoo](https://github.com/Xilinx/AI-Model-Zoo) is used in this tutorial. The float model is already placed in `GPU-DPU-cross-check/caffe_resnet50/float_model/` and complete ResNet50 package can be downloaded in [download link](https://www.xilinx.com/bin/public/openDownload?filename=resnet50_20190528.zip).
+Resnet50 from [Xilinx Model Zoo](https://github.com/Xilinx/AI-Model-Zoo) is used in this tutorial. The float model is already placed in `GPU-DPU-cross-check/caffe_resnet50/float_model/` and complete ResNet50 package can be downloaded in [here](https://www.xilinx.com/bin/public/openDownload?filename=resnet50_20190528.zip).
 
 ## 2. Generate Quantized Inference Model and Reference Result
 
