@@ -14,4 +14,5 @@ The tutorial contains following content:
 #### Notice
 Some tools or commands in this tutorial are not released or documented publicly. If there is any need or question, please contact shuaizh@xilinx.com. 
 
+Please keep this tutorial Xilinx internal.
 
