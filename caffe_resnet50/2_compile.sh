@@ -6,4 +6,5 @@ dnnc-3.1 --parser=caffe \
          --output_dir=compile_model \
          --net_name=caffe_resnet50 \
          --mode=debug \
-         --save_kernel
+         --save_kernel \
+         --dump all
