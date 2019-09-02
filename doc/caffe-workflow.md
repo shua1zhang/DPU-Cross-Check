@@ -165,7 +165,7 @@ When DNNC generates elf file, it will conduct several optimization strategies on
 
 ![Beginning of Caffe ResNet50 Super Layer](https://github.com/shua1zhang/GPU-DPU-cross-check/blob/master/doc/pic/Super_layer.PNG).
 
-Take first several layers of caffe resnet shown above as example. The names of DPU super layers are shown on the top of every blocks (e.g, `data, conv1, res2a_branch2a and res2a_branch1`) while the names of network layers are shown in every blobs (e.g, `data, conv1, conv1_relu, pool1`). 
+Take first several layers of caffe resnet shown above as example. The names of DPU super layers are shown on the top of every blocks (e.g, `data, conv1, res2a_branch2a` and `res2a_branch1`) while the names of network layers are shown in every blobs (e.g, `data, conv1, conv1_relu` and `pool1`). 
 
 Super Layer Name| Referenece file            | DPU file
 ----------------|:---------------------------|:------------
