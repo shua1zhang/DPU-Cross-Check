@@ -101,6 +101,8 @@ Following files will be generated under `/caffe_resnet50/quantize_model/`:
 + quantize_train_test.prototxt
 + quantize_train_test.caffemodel
 
+![Caffe quantize result](https://github.com/shua1zhang/GPU-DPU-cross-check/blob/master/doc/pic/caffe_quantize.PNG)
+
 The deploy.prototxt and deploy.caffemodel will be used to generate DPU elf file while the quantize_train_test.prototxt and quantize_train_test.caffemodel will be used to generate reference INT8 inference result. 
 
 ### Generate reference INT8 inference result
@@ -130,6 +132,9 @@ dnnc-3.1 --parser=caffe \
          --save_kernel
 ```
 
+![Caffe Complie Result](https://github.com/shua1zhang/GPU-DPU-cross-check/blob/master/doc/pic/caffe_compile.PNG)
+
+
 With internal function of DNNC, the relationship between DPU super layers and actual network layers could be generated as [Caffe ResNet50 Super Layer](https://github.com/shua1zhang/GPU-DPU-cross-check/blob/master/caffe_resnet50/kernel_graph.jpg).
 
 ### Generate DPU inference result
@@ -151,15 +156,22 @@ caffe-resnet50 data.txt
 ![DPU Inference Result](https://github.com/shua1zhang/GPU-DPU-cross-check/blob/master/doc/pic/DPU_dump.PNG)
 
 ## 4. Cross Check Inference Result
-# Understand layer correspondence between refenecne result and DPU inference result
+### Understand layer correspondence between refenecne result and DPU inference result
 When DNNC generates elf file, it will conduct several optimization strategies on certain layer conbinations and form super layers so as to get better performance. In order to cross check inference result correctness, [super layer graph](https://github.com/shua1zhang/GPU-DPU-cross-check/blob/master/caffe_resnet50/kernel_graph.jpg) will be used to find correct files to cross check. 
 
 ![Beginning of Caffe ResNet50 Super Layer](https://github.com/shua1zhang/GPU-DPU-cross-check/blob/master/doc/pic/Super_layer.PNG).
 
 For example, first several layers of caffe resnet are shown as above. The names of DPU super layers are shown on the top of every blocks (e.g, data, conv1, res2a_branch2a and res2a_branch1) while names of network layers are shown in every blobs (e.g, data, conv1, conv1_relu, pool1). 
 
-Network layer   | DPU super layer
----------------:|:-------------
-data.bin        | resnet50_0_conv1_in0.bin
-pool1.bin       | resnet50_0_conv1_out0.bin
+Super Layer Name| Referenece file            | DPU file
+----------------|:---------------------------|:------------
+conv1 (input)   | data.bin                   | caffe_resnet50_0_conv1_in0.bin   
+conv1 (output)  | pool1.bin                  | caffe_resnet50_0_conv1_out0.bin 
+res2a_branch2a  | pool1.bin                  | caffe_resnet50_0_res2a_branch2a_in0.bin
+res2a_branch2a  | res2a_branch2a_relu.bin    | caffe_resnet50_0_res2a_branch2a_out0.bin
+res2a_branch1   | pool1.bin                   | caffe_resnet50_0_res2a_branch1_in0.bin
+res2a_branch1   | res2a_branch2c.bin          | caffe_resnet50_0_res2a_branch1_in1.bin
+res2a_branch1   | res2a_relu.bin              | caffe_resnet50_0_res2a_branch1_out0.bin
 
+
+The initial check is to make sure the inputs to `conv1` are same. In order to do that, data.bin from reference result and caffe_resnet50_0_conv1_in0.bin from DPU result need to be compared, which should be exactly same. 
