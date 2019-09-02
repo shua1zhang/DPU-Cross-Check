@@ -137,6 +137,8 @@ dnnc-3.1 --parser=caffe \
 
 Files dumped for analysis purpose are stored in floder `dump` whose contents are as follow: 
 
+![DNNC Dump](https://github.com/shua1zhang/GPU-DPU-cross-check/blob/master/doc/pic/dnnc_dump.PNG)
+
 With internal function of DNNC, the relationship between DPU super layers and actual network layers could be generated as [Caffe ResNet50 Super Layer](https://github.com/shua1zhang/GPU-DPU-cross-check/blob/master/caffe_resnet50/kernel_graph.jpg).
 
 ### Generate DPU inference result
