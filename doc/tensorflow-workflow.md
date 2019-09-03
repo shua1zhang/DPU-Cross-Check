@@ -21,4 +21,38 @@ This tutorial requires TensorFlow decent_q released in [DNNDK 3.1](https://www.x
 
 Resnet50 from [Xilinx Model Zoo](https://github.com/Xilinx/AI-Model-Zoo) is used in this tutorial. The pb file is already placed in `GPU-DPU-cross-check/tf_resnet50/quantized_model/` and complete ResNet50 package can be downloaded in [here]().
 
+## 2. Generate Reference Result
 
+Under folder `tf_resnet50`, run `0_dump.sh` to generate reference data.
+
+```
+decent_q dump --input_frozen_graph quantize_model/quantize_eval_model.pb \
+              --input_fn resnet_v1_50_input_fn.dump_input \
+              --output_dir=dump_gpu \
+```
+
+After running the script, folder "dump_gpu" will be generated and partial files are shown as below. 
+
+~~~snapshot for reference files~~~
+
+## 3. Generate DPU Inference Result
+
+Run script `1_compile.sh` to genereate DPU elf file. Please modify `dcf` parameter according to your board.
+
+```
+dnnc-3.1 --parser=tensorflow \
+         --dcf=../dcf/ZCU102.dcf \
+         --frozen_pb=quantize_model/deploy_model.pb \
+         --cpu_arch=arm64 \
+         --output_dir=compile_model \
+         --net_name=tf_resnet50 \
+         --mode=debug \
+         --save_kernel \
+         --dump all
+```
+
+~~~snapshot for DNNC log~~~~
+
+Files dumped for analysis purpose are stored in folder `dump` whose contents are as follow:
+
+~~~snapshot for DNNC dump files~~~~
