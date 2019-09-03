@@ -5,4 +5,5 @@ dnnc-3.1 --parser=tensorflow \
          --output_dir=compile_model \
          --net_name=tf_resnet50 \
          --mode=debug \
-         --save_kernel
+         --save_kernel \
+         --dump all
