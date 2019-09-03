@@ -135,7 +135,7 @@ dnnc-3.1 --parser=caffe \
 
 ![Caffe Complie Result](https://github.com/shua1zhang/GPU-DPU-cross-check/blob/master/doc/pic/caffe_compile.PNG)
 
-Files dumped for analysis purpose are stored in floder `dump` whose contents are as follow: 
+Files dumped for analysis purpose are stored in folder `dump` whose contents are as follow: 
 
 ![DNNC Dump](https://github.com/shua1zhang/GPU-DPU-cross-check/blob/master/doc/pic/dnnc_dump.PNG)
 
