@@ -19,7 +19,7 @@ This tutorial requires TensorFlow decent_q released in [DNNDK 3.1](https://www.x
 
 ### Model
 
-Resnet50 from [Xilinx Model Zoo](https://github.com/Xilinx/AI-Model-Zoo) is used in this tutorial. The pb file is already placed in `GPU-DPU-cross-check/tf_resnet50/quantized_model/` and complete ResNet50 package can be downloaded in [here]().
+Resnet50 from [Xilinx Model Zoo](https://github.com/Xilinx/AI-Model-Zoo) is used in this tutorial. The pb file is already placed in `GPU-DPU-cross-check/tf_resnet50/quantized_model/` and complete ResNet50 package can be downloaded in [here](https://www.xilinx.com/bin/public/openDownload?filename=tf_resnet50_imagenet_224_224_6.97G.zip).
 
 ## 2. Generate Reference Result
 
