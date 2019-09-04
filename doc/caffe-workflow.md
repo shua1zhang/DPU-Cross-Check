@@ -19,7 +19,7 @@ This tutorial requires DECENT_Q full version and assumes that it is renamed to `
 
 ### Model
 
-Resnet50 from [Xilinx Model Zoo](https://github.com/Xilinx/AI-Model-Zoo) is used in this tutorial. The float model is already placed in `GPU-DPU-cross-check/caffe_resnet50/float_model/` and complete ResNet50 package can be downloaded in [here](https://www.xilinx.com/bin/public/openDownload?filename=resnet50_20190528.zip).
+Resnet50 from [Xilinx Model Zoo](https://github.com/Xilinx/AI-Model-Zoo) is used in this tutorial. The float model is already placed in `GPU-DPU-cross-check/caffe_resnet50/float_model/` and complete ResNet50 package can be downloaded in [here](https://www.xilinx.com/bin/public/openDownload?filename=cf_resnet50_imagenet_224_224_7.7G.zip).
 
 ## 2. Generate Quantized Inference Model and Reference Result
 
