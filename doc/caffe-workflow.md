@@ -160,7 +160,7 @@ caffe-resnet50 data.txt
 ![DPU Inference Result](https://github.com/shua1zhang/GPU-DPU-cross-check/blob/master/doc/pic/DPU_dump.PNG)
 
 ## 4. Cross Check Inference Result
-### Understand layer correspondence between refenecne result and DPU inference result
+### Understand layer correspondence between reference result and DPU inference result
 When DNNC generates elf file, it will conduct several optimization strategies on certain layer conbinations and form super layers so as to get better performance. In order to cross check inference result correctness, [super layer graph](https://github.com/shua1zhang/GPU-DPU-cross-check/blob/master/caffe_resnet50/kernel_graph.jpg) will be used to find correct files to cross check. 
 
 ![Beginning of Caffe ResNet50 Super Layer](https://github.com/shua1zhang/GPU-DPU-cross-check/blob/master/doc/pic/Super_layer.PNG).
@@ -177,7 +177,7 @@ res2a_branch1 (input)   | pool1.bin                   | caffe_resnet50_0_res2a_b
 res2a_branch1 (input)   | res2a_branch2c.bin          | caffe_resnet50_0_res2a_branch1_in1.bin
 res2a_branch1 (output)  | res2a_relu.bin              | caffe_resnet50_0_res2a_branch1_out0.bin
 
-### Cross check refenecne result and DPU inference result
+### Cross check reference result and DPU inference result
 
 The cross check mechinism is to first make sure input(s) to one super layer is identicial to reference and then the output(s) is identical too, which can be done with command `diff`, `vimdiff`, `cmp` and etc. If two files are identical, command `diff` and `cmp` will return nothing in command line. 
 
