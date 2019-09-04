@@ -78,7 +78,7 @@
 #include <sstream>
 
 /* header file OpenCV for image processing */
-/#include <opencv2/opencv.hpp>
+#include <opencv2/opencv.hpp>
 
 /* header file for DNNDK APIs */
 #include <dnndk/dnndk.h>
