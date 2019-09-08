@@ -101,7 +101,7 @@ Following files will be generated under `/caffe_resnet50/quantize_model/`:
 + quantize_train_test.prototxt
 + quantize_train_test.caffemodel
 
-![Caffe quantize result](doc/pic/caffe_quantize.PNG)
+![Caffe quantize result](pic/caffe_quantize.PNG)
 
 The deploy.prototxt and deploy.caffemodel will be used to generate DPU elf file while the quantize_train_test.prototxt and quantize_train_test.caffemodel will be used to generate reference INT8 inference result. 
 
@@ -115,7 +115,7 @@ DECENT_DEBUG=5 decent_q_full test -model quantize_model/quantize_train_test.prot
 ```
 After running the script, folder "dump_gpu" will be generated and partial files are shown as below.
 
-![GPU Reference Result](doc/pic/GPU_dump.PNG)
+![GPU Reference Result](pic/GPU_dump.PNG)
 
 ## 3. Generate DPU Inference Result 
 ### Generate DPU elf file 
@@ -133,11 +133,11 @@ dnnc-3.1 --parser=caffe \
          --dump all
 ```
 
-![Caffe Complie Result](doc/pic/caffe_compile.PNG)
+![Caffe Complie Result](pic/caffe_compile.PNG)
 
 Files dumped for analysis purpose are stored in folder `dump` whose contents are as follow: 
 
-![DNNC Dump](doc/pic/dnnc_dump.PNG)
+![DNNC Dump](pic/dnnc_dump.PNG)
 
 With internal function of DNNC, the relationship between DPU super layers and actual network layers could be generated as [Caffe ResNet50 Super Layer](caffe_resnet50/kernel_graph.jpg).
 
@@ -157,13 +157,13 @@ Run DPU inference with reference input data `data.txt` by below command and infe
 ```
 caffe-resnet50 data.txt
 ```
-![DPU Inference Result](doc/pic/DPU_dump.PNG)
+![DPU Inference Result](pic/DPU_dump.PNG)
 
 ## 4. Cross Check Inference Result
 ### Understand layer correspondence between reference result and DPU inference result
-When DNNC generates elf file, it will conduct several optimization strategies on certain layer conbinations and form super layers so as to get better performance. In order to cross check inference result correctness, [super layer graph](caffe_resnet50/kernel_graph.jpg) will be used to find correct files to cross check. 
+When DNNC generates elf file, it will conduct several optimization strategies on certain layer conbinations and form super layers so as to get better performance. In order to cross check inference result correctness, [super layer graph](../caffe_resnet50/kernel_graph.jpg) will be used to find correct files to cross check. 
 
-![Beginning of Caffe ResNet50 Super Layer](doc/pic/Super_layer.PNG).
+![Beginning of Caffe ResNet50 Super Layer](pic/Super_layer.PNG).
 
 Take first several layers of caffe resnet shown above as example. The names of DPU super layers are shown on the top of every blocks (e.g, `data, conv1, res2a_branch2a` and `res2a_branch1`) while the names of network layers are shown in every blobs (e.g, `data, conv1, conv1_relu` and `pool1`). 
 
@@ -185,7 +185,7 @@ For example as the initial step, the inputs of super layer 'conv1' (i.e., `data.
 
 For super layers that have multiple input or output (e.g., `res2a_branch1`), input correctness should be checked first and then check output. 
 
-![Caffe Check Result](doc/pic/caffe_check.PNG)
+![Caffe Check Result](pic/caffe_check.PNG)
 
 ### Files to submit if cross check fails
 
