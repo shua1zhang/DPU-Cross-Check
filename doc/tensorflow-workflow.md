@@ -52,16 +52,16 @@ dnnc-3.1 --parser=tensorflow \
          --dump all
 ```
 
-![Compile result](https://github.com/shua1zhang/GPU-DPU-cross-check/blob/master/doc/pic/tf_compile.PNG)
+![Compile result](pic/tf_compile.PNG)
 
 
 Files dumped for analysis purpose are stored in folder `dump` whose contents are as follow:
 
 
-![DNNC dump result](https://github.com/shua1zhang/GPU-DPU-cross-check/blob/master/doc/pic/tf_dnnc_dump.PNG)
+![DNNC dump result](pic/tf_dnnc_dump.PNG)
 
 
-With internal function of DNNC, the relationship between DPU super layers and actual network layers could be generated as [TensorFlow ResNet50 Super Layer](https://github.com/shua1zhang/GPU-DPU-cross-check/blob/master/tf_resnet50/kernel_graph.jpg).
+With internal function of DNNC, the relationship between DPU super layers and actual network layers could be generated as [TensorFlow ResNet50 Super Layer](../tf_resnet50/kernel_graph.jpg).
 
 
 ### Generate DPU inference result
@@ -79,14 +79,14 @@ Run DPU inference with reference input data `input_aquant_int8.txt` by below com
 ```
 tf-resnet50 input_aquant_int8.txt
 ```
-![DPU Inference Result](https://github.com/shua1zhang/GPU-DPU-cross-check/blob/master/doc/pic/tf_DPU_dump.PNG)
+![DPU Inference Result](pic/tf_DPU_dump.PNG)
 
 ## 4. Cross Check Inference Result
 
 ### Understand layer correspondence between refenecne result and DPU inference result
-When DNNC generates elf file, it will conduct several optimization strategies on certain layer conbinations and form super layers so as to get better performance. In order to cross check inference result correctness, [super layer graph](https://github.com/shua1zhang/GPU-DPU-cross-check/blob/master/tf_resnet50/kernel_graph.jpg) will be used to find correct files to cross check. 
+When DNNC generates elf file, it will conduct several optimization strategies on certain layer conbinations and form super layers so as to get better performance. In order to cross check inference result correctness, [super layer graph](../tf_resnet50/kernel_graph.jpg) will be used to find correct files to cross check. 
 
-![Beginning of TensorFlow ResNet50 Super Layer](https://github.com/shua1zhang/GPU-DPU-cross-check/blob/master/doc/pic/tf_super_layer_begin.PNG).
+![Beginning of TensorFlow ResNet50 Super Layer](pic/tf_super_layer_begin.PNG).
 
 Take first several layers of caffe resnet shown above as example. The names of DPU super layers are shown on the top of every blocks (e.g, `resnet_v1_50_conv1_Conv2D`) while the names of network layers are shown in every blobs (e.g, `resnet_v1_50_conv1_Conv2D, resnet_v1_50_conv1_Relu, resnet_v1_50_pool1_MaxPool`). 
 
@@ -113,7 +113,7 @@ For example as the initial step, the inputs of super layer `resnet_v1_50_conv1_C
 
 For super layers that have multiple input or output (e.g., `resnet_v1_50_block1_unit_1_bottleneck_v1_shortcut_Conv2D`), input correctness should be checked first and then check output. 
 
-![TensorFlow Check Result](https://github.com/shua1zhang/GPU-DPU-cross-check/blob/master/doc/pic/tf_check_begin.PNG)
+![TensorFlow Check Result](pic/tf_check_begin.PNG)
 
 
 ### Files to submit if cross check fails
