@@ -1,6 +1,6 @@
 # DPU Cross Check Method 
 
-This tutorial aims to demonstrate how to conduct DPU debug with comparison between DPU layers result and GPU quantize model reference. Caffe ResNet50 and Tensorflow ResNet50 networks are used as examples. 
+This tutorial aims to demonstrate how to verify DPU inference result with DNNDK tools. Caffe ResNet50 and Tensorflow ResNet50 networks are used as examples. 
 
 The tutorial contains following content:
 
