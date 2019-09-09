@@ -65,7 +65,7 @@ With internal function of DNNC, the relationship between DPU super layers and ac
 
 
 ### Generate DPU inference result
-Transfer folder `/board_tf` onto board system and generate executable `tfcd f-resnet50` by command: 
+Transfer folder `/board_tf` onto board system and generate executable `tf-resnet50` by command: 
 ```
 make
 ``` 
